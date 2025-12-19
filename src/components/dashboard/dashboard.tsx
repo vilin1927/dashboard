@@ -155,7 +155,7 @@ export function Dashboard() {
         <Box flex="1" overflow="auto" bg={bgColor} p="6">
           <Box mb="6">
             <Heading size="lg" mb="2">
-              Dashboard
+              Carteric Dashboard
             </Heading>
             <Text color="gray.500">Track your campaign performance</Text>
           </Box>

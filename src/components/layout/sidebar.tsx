@@ -34,9 +34,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const SidebarContent = () => (
     <Box h="full" bg={bgColor}>
       <Flex h="80px" alignItems="center" px="8" borderBottomWidth="1px" borderColor={borderColor}>
-        <Text fontSize="2xl" fontWeight="bold" color={activeColor}>
-          Dashboard
-        </Text>
+        <Flex alignItems="center" gap="3">
+          <Box
+            bg="brand.500"
+            w="40px"
+            h="40px"
+            borderRadius="12px"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Text fontSize="xl" fontWeight="bold" color="white">
+              C
+            </Text>
+          </Box>
+          <Text fontSize="xl" fontWeight="bold" color={activeColor}>
+            Carteric Dashboard
+          </Text>
+        </Flex>
       </Flex>
 
       <VStack spacing="1" align="stretch" px="4" py="6">

@@ -1,6 +1,6 @@
-# Marketing Dashboard
+# Carteric Dashboard
 
-A modern React 18 dashboard built with Chakra UI for tracking campaign performance metrics.
+A modern React 18 marketing dashboard built with Chakra UI for tracking campaign performance metrics.
 
 ## Features
 
