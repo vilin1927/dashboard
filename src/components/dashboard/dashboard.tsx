@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { DollarSign, Users, TrendingDown, MousePointer } from "lucide-react";
+import { Box, Flex, Grid, Heading, Text, useColorModeValue, useDisclosure } from "@chakra-ui/react";
+import { MdAttachMoney, MdPeople, MdTrendingDown, MdMouse } from "react-icons/md";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { KPICard } from "./kpi-card";
 import { SpendChart } from "./spend-chart";
 import { CampaignsTable } from "./campaigns-table";
 import { DashboardFilters } from "./filters";
-import { useTheme } from "@/hooks/use-theme";
 import type { DashboardFilters as Filters } from "@/types";
 import {
   fetchClients,
@@ -19,8 +19,9 @@ import { formatCurrency, formatNumber, formatPercentage } from "@/lib/utils";
 import jsPDF from "jspdf";
 
 export function Dashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const bgColor = useColorModeValue("gray.50", "gray.900");
+
   const [filters, setFilters] = useState<Filters>({
     dateRange: {
       from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -139,67 +140,73 @@ export function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <Flex h="100vh" overflow="hidden">
+      <Sidebar isOpen={isOpen} onClose={onClose} />
 
-      <div className="flex flex-1 flex-col overflow-hidden md:ml-64">
-        <Header
-          onMenuClick={() => setSidebarOpen(true)}
-          theme={theme}
-          onThemeToggle={toggleTheme}
-        />
+      <Box
+        flex="1"
+        ml={{ base: 0, md: "250px" }}
+        display="flex"
+        flexDirection="column"
+        overflow="hidden"
+      >
+        <Header onMenuClick={onOpen} />
 
-        <main className="flex-1 overflow-y-auto bg-muted/10 p-6">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-            <p className="text-muted-foreground">
-              Track your campaign performance
-            </p>
-          </div>
+        <Box flex="1" overflow="auto" bg={bgColor} p="6">
+          <Box mb="6">
+            <Heading size="lg" mb="2">
+              Dashboard
+            </Heading>
+            <Text color="gray.500">Track your campaign performance</Text>
+          </Box>
 
-          <div className="mb-6">
+          <Box mb="6">
             <DashboardFilters
               filters={filters}
               onFiltersChange={setFilters}
               clients={clients}
               onExport={handleExport}
             />
-          </div>
+          </Box>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+          <Grid
+            templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }}
+            gap="6"
+            mb="6"
+          >
             <KPICard
               title="Total Spend"
               value={formatCurrency(kpis?.spend || 0)}
-              icon={DollarSign}
+              icon={MdAttachMoney}
               isLoading={kpisLoading}
             />
             <KPICard
               title="Total Leads"
               value={formatNumber(kpis?.leads || 0)}
-              icon={Users}
+              icon={MdPeople}
               isLoading={kpisLoading}
             />
             <KPICard
               title="Cost Per Lead"
               value={formatCurrency(kpis?.cpl || 0)}
-              icon={TrendingDown}
+              icon={MdTrendingDown}
               isLoading={kpisLoading}
             />
             <KPICard
               title="Click-Through Rate"
               value={formatPercentage(kpis?.ctr || 0)}
-              icon={MousePointer}
+              icon={MdMouse}
               isLoading={kpisLoading}
             />
-          </div>
+          </Grid>
 
-          <div className="mb-6">
+          <Box mb="6">
             <SpendChart data={spendData} isLoading={spendLoading} />
-          </div>
+          </Box>
 
           <CampaignsTable campaigns={campaigns} isLoading={campaignsLoading} />
-        </main>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Flex>
   );
 }

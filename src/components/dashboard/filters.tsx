@@ -1,7 +1,16 @@
-import { Select } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import {
+  Box,
+  Button,
+  Flex,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Select,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { MdCalendarToday, MdFileDownload, MdExpandMore } from "react-icons/md";
+import { format } from "date-fns";
 import type { DashboardFilters as Filters, Client } from "@/types";
 
 interface FiltersProps {
@@ -17,30 +26,48 @@ export function DashboardFilters({
   clients,
   onExport,
 }: FiltersProps) {
+  const bgColor = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+
   const selectedClient = clients.find((c) => c.id === filters.clientId);
   const clinics = selectedClient?.clinics || [];
 
-  const clientOptions = [
-    { value: "", label: "All Clients" },
-    ...clients.map((c) => ({ value: c.id, label: c.name })),
-  ];
-
-  const clinicOptions = [
-    { value: "", label: "All Clinics" },
-    ...clinics.map((c) => ({ value: c.id, label: c.name })),
-  ];
+  const handlePreset = (days: number) => {
+    const to = new Date();
+    const from = new Date();
+    from.setDate(from.getDate() - days);
+    onFiltersChange({ ...filters, dateRange: { from, to } });
+  };
 
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      <DatePicker
-        dateRange={filters.dateRange}
-        onDateRangeChange={(dateRange) =>
-          onFiltersChange({ ...filters, dateRange })
-        }
-      />
+    <Flex gap="4" flexWrap="wrap" alignItems="center">
+      <Menu>
+        <MenuButton
+          as={Button}
+          rightIcon={<MdExpandMore />}
+          leftIcon={<MdCalendarToday />}
+          bg={bgColor}
+          borderWidth="1px"
+          borderColor={borderColor}
+          borderRadius="15px"
+          fontWeight="500"
+          _hover={{ bg: useColorModeValue("gray.50", "gray.600") }}
+        >
+          {filters.dateRange.from && filters.dateRange.to
+            ? `${format(filters.dateRange.from, "MMM dd, yyyy")} - ${format(
+                filters.dateRange.to,
+                "MMM dd, yyyy"
+              )}`
+            : "Select Date Range"}
+        </MenuButton>
+        <MenuList>
+          <MenuItem onClick={() => handlePreset(7)}>Last 7 days</MenuItem>
+          <MenuItem onClick={() => handlePreset(30)}>Last 30 days</MenuItem>
+          <MenuItem onClick={() => handlePreset(90)}>Last 90 days</MenuItem>
+        </MenuList>
+      </Menu>
 
       <Select
-        options={clientOptions}
         value={filters.clientId || ""}
         onChange={(e) =>
           onFiltersChange({
@@ -49,27 +76,58 @@ export function DashboardFilters({
             clinicId: null,
           })
         }
-      />
+        bg={bgColor}
+        borderColor={borderColor}
+        borderRadius="15px"
+        w="200px"
+        fontWeight="500"
+      >
+        <option value="">All Clients</option>
+        {clients.map((client) => (
+          <option key={client.id} value={client.id}>
+            {client.name}
+          </option>
+        ))}
+      </Select>
 
       <Select
-        options={clinicOptions}
         value={filters.clinicId || ""}
         onChange={(e) =>
           onFiltersChange({ ...filters, clinicId: e.target.value || null })
         }
-        disabled={!filters.clientId}
-      />
+        bg={bgColor}
+        borderColor={borderColor}
+        borderRadius="15px"
+        w="200px"
+        fontWeight="500"
+        isDisabled={!filters.clientId}
+      >
+        <option value="">All Clinics</option>
+        {clinics.map((clinic) => (
+          <option key={clinic.id} value={clinic.id}>
+            {clinic.name}
+          </option>
+        ))}
+      </Select>
 
-      <div className="ml-auto flex gap-2">
-        <Button variant="outline" onClick={() => onExport("csv")}>
-          <Download className="mr-2 h-4 w-4" />
-          Export CSV
+      <Box ml="auto" display="flex" gap="2">
+        <Button
+          leftIcon={<MdFileDownload />}
+          variant="outline"
+          borderRadius="15px"
+          onClick={() => onExport("csv")}
+        >
+          CSV
         </Button>
-        <Button variant="outline" onClick={() => onExport("pdf")}>
-          <Download className="mr-2 h-4 w-4" />
-          Export PDF
+        <Button
+          leftIcon={<MdFileDownload />}
+          variant="outline"
+          borderRadius="15px"
+          onClick={() => onExport("pdf")}
+        >
+          PDF
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Flex>
   );
 }

@@ -1,6 +1,17 @@
-import { BarChart3, Home, Settings, Users, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import {
+  Box,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
+  Flex,
+  Icon,
+  Text,
+  useColorModeValue,
+  VStack,
+} from "@chakra-ui/react";
+import { MdHome, MdBarChart, MdPeople, MdSettings } from "react-icons/md";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -8,52 +19,73 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { icon: Home, label: "Dashboard", href: "/" },
-  { icon: BarChart3, label: "Analytics", href: "/analytics" },
-  { icon: Users, label: "Clients", href: "/clients" },
-  { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: MdHome, label: "Dashboard", href: "/" },
+  { icon: MdBarChart, label: "Analytics", href: "/analytics" },
+  { icon: MdPeople, label: "Clients", href: "/clients" },
+  { icon: MdSettings, label: "Settings", href: "/settings" },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const hoverBg = useColorModeValue("gray.100", "gray.700");
+  const activeColor = useColorModeValue("brand.500", "white");
+
+  const SidebarContent = () => (
+    <Box h="full" bg={bgColor}>
+      <Flex h="80px" alignItems="center" px="8" borderBottomWidth="1px" borderColor={borderColor}>
+        <Text fontSize="2xl" fontWeight="bold" color={activeColor}>
+          Dashboard
+        </Text>
+      </Flex>
+
+      <VStack spacing="1" align="stretch" px="4" py="6">
+        {navItems.map((item) => (
+          <Flex
+            key={item.href}
+            align="center"
+            px="4"
+            py="3"
+            borderRadius="15px"
+            cursor="pointer"
+            _hover={{ bg: hoverBg }}
+            transition="all 0.2s"
+          >
+            <Icon as={item.icon} boxSize="5" mr="3" />
+            <Text fontSize="md" fontWeight="500">
+              {item.label}
+            </Text>
+          </Flex>
+        ))}
+      </VStack>
+    </Box>
+  );
+
   return (
     <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
-          onClick={onClose}
-        />
-      )}
-
-      <aside
-        className={cn(
-          "fixed left-0 top-0 z-50 h-full w-64 border-r bg-background transition-transform duration-300 md:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        )}
+      {/* Desktop Sidebar */}
+      <Box
+        display={{ base: "none", md: "block" }}
+        position="fixed"
+        left="0"
+        h="100vh"
+        w="250px"
+        borderRightWidth="1px"
+        borderColor={borderColor}
       >
-        <div className="flex h-16 items-center justify-between border-b px-6">
-          <h1 className="text-xl font-bold">Dashboard</h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={onClose}
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+        <SidebarContent />
+      </Box>
 
-        <nav className="space-y-1 p-4">
-          {navItems.map((item) => (
-            <button
-              key={item.href}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-            >
-              <item.icon className="h-5 w-5" />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
+      {/* Mobile Drawer */}
+      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerBody p="0">
+            <SidebarContent />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }

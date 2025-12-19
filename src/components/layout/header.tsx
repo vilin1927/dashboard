@@ -1,60 +1,69 @@
-import { Menu, Moon, Sun, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Box,
+  Flex,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
+  useColorMode,
+  useColorModeValue,
+  Avatar,
+} from "@chakra-ui/react";
+import { MdMenu, MdDarkMode, MdLightMode } from "react-icons/md";
 
 interface HeaderProps {
   onMenuClick: () => void;
-  theme: "light" | "dark";
-  onThemeToggle: () => void;
 }
 
-export function Header({ onMenuClick, theme, onThemeToggle }: HeaderProps) {
+export function Header({ onMenuClick }: HeaderProps) {
+  const { colorMode, toggleColorMode } = useColorMode();
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+
   return (
-    <header className="sticky top-0 z-40 border-b bg-background">
-      <div className="flex h-16 items-center gap-4 px-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
+    <Box
+      position="sticky"
+      top="0"
+      zIndex="10"
+      bg={bgColor}
+      borderBottomWidth="1px"
+      borderColor={borderColor}
+    >
+      <Flex h="80px" alignItems="center" justifyContent="space-between" px="6">
+        <IconButton
+          display={{ base: "flex", md: "none" }}
           onClick={onMenuClick}
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-
-        <div className="flex-1" />
-
-        <Button
           variant="ghost"
-          size="icon"
-          onClick={onThemeToggle}
-        >
-          {theme === "light" ? (
-            <Moon className="h-5 w-5" />
-          ) : (
-            <Sun className="h-5 w-5" />
-          )}
-        </Button>
+          aria-label="Open menu"
+          icon={<MdMenu size="24px" />}
+        />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </header>
+        <Box flex="1" />
+
+        <Flex alignItems="center" gap="3">
+          <IconButton
+            onClick={toggleColorMode}
+            variant="ghost"
+            aria-label="Toggle theme"
+            icon={colorMode === "light" ? <MdDarkMode size="20px" /> : <MdLightMode size="20px" />}
+            borderRadius="12px"
+          />
+
+          <Menu>
+            <MenuButton>
+              <Avatar size="sm" name="User" cursor="pointer" />
+            </MenuButton>
+            <MenuList>
+              <MenuItem>Profile</MenuItem>
+              <MenuItem>Settings</MenuItem>
+              <MenuDivider />
+              <MenuItem>Logout</MenuItem>
+            </MenuList>
+          </Menu>
+        </Flex>
+      </Flex>
+    </Box>
   );
 }
